@@ -1,28 +1,13 @@
-#include "device_file.h"
-#include <linux/init.h>       /* module_init, module_exit */
-#include <linux/module.h>     /* version info, MODULE_LICENSE, MODULE_AUTHOR, printk() */
+#include <linux/init.h>
+#include <linux/module.h>
 
-MODULE_DESCRIPTION("Simple Linux driver");
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Apriorit, Inc");
-
-/*===============================================================================================*/
-static int simple_driver_init(void)
-{
-    int result = 0;
-    printk( KERN_NOTICE "Simple-driver: Initialization started\n" );
-
-    result = register_device();
-    return result;
+static int my_init(void) {
+    return 0;
 }
 
-/*===============================================================================================*/
-static void simple_driver_exit(void)
-{
-    printk( KERN_NOTICE "Simple-driver: Exiting\n" );
-    unregister_device();
+static void my_exit(void) {
+    return;
 }
 
-/*===============================================================================================*/
-module_init(simple_driver_init);
-module_exit(simple_driver_exit);
+module_init(my_init);
+module_exit(my_exit);
