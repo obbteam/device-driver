@@ -3,11 +3,11 @@
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 #include <linux/mutex.h>
+#include <linux/miscdevice.h>
 
 /* ============ DRIVER INIT VARS ============*/
 
-static int device_file_major_number = 0;
-static const char device_name[] = "Akhmadkhonov-driver";
+static const char device_name[] = "akhmadkhonov-driver";
 
 /* ============ SIMPLE READ IMPLEMENTATION ============ */
 
@@ -36,7 +36,7 @@ static ssize_t device_file_read_simple(struct file *file_ptr,
 */
 
 /* ============ DYNAMIC READ/WRITE IMPLEMENTATION ============ */
-#define BUF_MAX 50
+#define BUF_MAX 255
 
 static DEFINE_MUTEX(buf_lock); // Mutex to protect buffer for a write command
 static char buffer[BUF_MAX];
@@ -47,7 +47,8 @@ static ssize_t device_file_read_dynamic(struct file *file_ptr,
                                         size_t count,
                                         loff_t *position)
 {
-    printk(KERN_NOTICE "Akhmadkhonov-driver: Device file is reading dynamically at offset = %i, read bytes count = %un",
+    printk(KERN_NOTICE "%s: Device file is reading dynamically at offset = %i, read bytes count = %u\n",
+           device_name,
            (int)*position,
            (unsigned int)count);
 
@@ -72,7 +73,8 @@ static ssize_t device_file_write(struct file *file_ptr,
 
     buf_len = 0;
 
-    printk(KERN_NOTICE "Akhmadkhonov-driver: Device file recieved %i, written bytes count = %un",
+    printk(KERN_NOTICE "%s: Device file recieved %i, written bytes count = %u\n",
+           device_name,
            (unsigned int)count,
            (unsigned int)n);
 
@@ -82,40 +84,54 @@ static ssize_t device_file_write(struct file *file_ptr,
         return -EFAULT;
     }
 
-    position += n;
+    *position = n;
     buf_len = n;
     mutex_unlock(&buf_lock);
 
     return n;
 }
 
+static int device_open(struct inode *inode, struct file *filp)
+{
+    filp->f_pos = 0; /* start every session at offset 0 */
+    return 0;
+}
+
 static struct file_operations simple_driver_fops = {
+    .open = device_open,
     .owner = THIS_MODULE,
     .read = device_file_read_dynamic,
     .write = device_file_write,
 };
 
+/*============ DYNAMICALLY REGISTERING THE DEVICE ============ */
+static struct miscdevice simple_misc =
+    {
+        .minor = MISC_DYNAMIC_MINOR,
+        .name = device_name,
+        .fops = &simple_driver_fops,
+};
+
 int register_device(void)
 {
     int result = 0;
-    printk(KERN_NOTICE "Akhmadkhonov-driver: register_device() is called.n");
-    result = register_chrdev(0, device_name, &simple_driver_fops);
-    if (result < 0)
+    printk(KERN_NOTICE "%s: Register_device() is called\n", device_name);
+    // result = register_chrdev(0, device_name, &simple_driver_fops);
+    result = misc_register(&simple_misc);
+
+    if (result)
     {
-        printk(KERN_WARNING "Akhmadkhonov-driver: can't register character device with error code = %in", result);
+        printk(KERN_WARNING "%s: Misc_register failed (%d)\n", device_name, result);
         return result;
     }
 
-    device_file_major_number = result;
-    printk(KERN_NOTICE "Akhmadkhonov-driver: registered character device with major number = %i and minor numbers  0...255n", device_file_major_number);
+    printk(KERN_NOTICE "%s: Loaded, /dev/%s ready\n", device_name, device_name);
     return 0;
 }
 
 void unregister_device(void)
 {
-    printk(KERN_NOTICE "Akhmadkhonov-driver: unregister_device() is called.n");
-    if (device_file_major_number != 0)
-    {
-        unregister_chrdev(device_file_major_number, device_name);
-    }
+    printk(KERN_NOTICE "%s: Unregister_device() is called\n", device_name);
+    misc_deregister(&simple_misc);
+    printk(KERN_NOTICE "%s: Unloaded\n", device_name);
 }

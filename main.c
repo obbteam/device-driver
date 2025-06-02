@@ -17,8 +17,8 @@ static int my_init(void)
 
 static void my_exit(void)
 {
-    printk(KERN_NOTICE "Akhmadkhonov-driver: Exiting\n");
     unregister_device();
+    printk(KERN_NOTICE "Akhmadkhonov-driver: Exiting\n");
 }
 
 module_init(my_init);
