@@ -5,9 +5,9 @@
 #include <linux/uaccess.h>
 
 static int device_file_major_number = 0;
-static const char device_name[] = "Simple-driver";
+static const char device_name[] = "Akhmadkhonov-driver";
 
-static const char g_s_Hello_world_string[] = "Hello world from kernel mode!\n";
+static const char g_s_Hello_world_string[] = "Hi Mr.Felix from obbteam's kernel mode!\n";
 static const ssize_t g_s_Hello_world_size = sizeof(g_s_Hello_world_string);
 
 static ssize_t device_file_read(struct file *file_ptr,
@@ -15,7 +15,7 @@ static ssize_t device_file_read(struct file *file_ptr,
                                 size_t count,
                                 loff_t *position)
 {
-    printk(KERN_NOTICE "Simple_driver: Device file is read at offset = %i, read bytes count = %un",
+    printk(KERN_NOTICE "Akhmadkhonov-driver: Device file is read at offset = %i, read bytes count = %un",
            (int)*position,
            (unsigned int)count);
 
@@ -37,16 +37,16 @@ static struct file_operations simple_driver_fops = {
 int register_device(void)
 {
     int result = 0;
-    printk(KERN_NOTICE "Simple-driver: register_device() is called.n");
+    printk(KERN_NOTICE "Akhmadkhonov-driver: register_device() is called.n");
     result = register_chrdev(0, device_name, &simple_driver_fops);
     if (result < 0)
     {
-        printk(KERN_WARNING "Simple-driver: can't register character device with error code = %in", result);
+        printk(KERN_WARNING "Akhmadkhonov-driver: can't register character device with error code = %in", result);
         return result;
     }
 
     device_file_major_number = result;
-    printk(KERN_NOTICE "Simple-driver: registered character device with major number = %i and minor numbers  0...255n", device_file_major_number);
+    printk(KERN_NOTICE "Akhmadkhonov-driver: registered character device with major number = %i and minor numbers  0...255n", device_file_major_number);
     return 0;
 }
 

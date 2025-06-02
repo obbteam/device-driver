@@ -9,7 +9,7 @@ MODULE_AUTHOR("obbteam");
 static int my_init(void)
 {
     int result = 0;
-    printk(KERN_NOTICE "Simple-driver: Initialization started\n");
+    printk(KERN_NOTICE "Akhmadkhonov-driver: Initialization started\n");
 
     result = register_device();
     return 0;
@@ -17,7 +17,7 @@ static int my_init(void)
 
 static void my_exit(void)
 {
-    printk(KERN_NOTICE "Simple-driver: Exiting\n");
+    printk(KERN_NOTICE "Akhmadkhonov-driver: Exiting\n");
     unregister_device();
 }
 
