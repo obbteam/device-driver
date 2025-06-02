@@ -3,7 +3,7 @@
 #include "device_file.h"
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Simple linux driver");
+MODULE_DESCRIPTION("Read/write linux driver");
 MODULE_AUTHOR("obbteam");
 
 static int my_init(void)
