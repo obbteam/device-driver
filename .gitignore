@@ -1,1 +1,9 @@
 .vscode
+compile_commands.json
+*.cmd
+*.o
+*.order
+*.mod
+*.ko
+simple-module.mod.c
+*.symvers
