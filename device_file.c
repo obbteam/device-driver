@@ -9,32 +9,6 @@
 
 static const char device_name[] = "akhmadkhonov-driver";
 
-/* ============ SIMPLE READ IMPLEMENTATION ============ */
-
-/*
-static const char g_s_Hello_world_string[] = "Hi Mr.Felix from obbteam's kernel mode!\n";
-static const ssize_t g_s_Hello_world_size = sizeof(g_s_Hello_world_string);
-
-static ssize_t device_file_read_simple(struct file *file_ptr,
-                                       char __user *user_buffer,
-                                       size_t count,
-                                       loff_t *position)
-{
-    printk(KERN_NOTICE "Akhmadkhonov-driver: Device file is read at offset = %i, read bytes count = %un",
-           (int)*position,
-           (unsigned int)count);
-
-    if (*position >= g_s_Hello_world_size)
-        return 0;
-    if (*position + count > g_s_Hello_world_size)
-        count = g_s_Hello_world_size - *position;
-    if (copy_to_user(user_buffer, g_s_Hello_world_string + *position, count) != 0)
-        return -EFAULT;
-    *position += count;
-    return count;
-}
-*/
-
 /* ============ DYNAMIC READ/WRITE IMPLEMENTATION ============ */
 #define BUF_MAX 255
 
