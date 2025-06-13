@@ -1,11 +1,6 @@
 /dts-v1/;
 /plugin/;
 
-/*
- * seven-segment display overlay for akhmadkhonov-driver
- * (8 GPIOs: A B C D E F G DOT)
- */
-
 #include <dt-bindings/gpio/gpio.h>
 
 / {
@@ -16,18 +11,16 @@
 
         __overlay__ {
             sevenseg: sevenseg@0 {
-                compatible = "akhmad,sevenseg";
-
-                /* GPIO list must be one long line or wrapped BEFORE the < > */
+                /* controller   pin  flags */
                 seg-gpios = <
-                    &gpio 5  GPIO_ACTIVE_HIGH
-                    &gpio 6  GPIO_ACTIVE_HIGH
-                    &gpio 4  GPIO_ACTIVE_HIGH
+                    &gpio  5 GPIO_ACTIVE_HIGH
+                    &gpio  6 GPIO_ACTIVE_HIGH
+                    &gpio  4 GPIO_ACTIVE_HIGH
                     &gpio 17 GPIO_ACTIVE_HIGH
                     &gpio 27 GPIO_ACTIVE_HIGH
                     &gpio 22 GPIO_ACTIVE_HIGH
                     &gpio 10 GPIO_ACTIVE_HIGH
-                    &gpio 9  GPIO_ACTIVE_HIGH
+                    &gpio  9 GPIO_ACTIVE_HIGH
                 >;
             };
         };

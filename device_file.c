@@ -199,7 +199,7 @@ int register_device(void)
 
     if (IS_ERR(segs))
     {
-        printk(KERN_ERR "%s: failed to get seg gpios: %ld\n", device_name, segs);
+        printk(KERN_ERR "%s: failed to get seg gpios: %d\n", device_name, segs->ndescs);
         int ret = PTR_ERR(segs);
         misc_deregister(&simple_misc);
         return ret;
