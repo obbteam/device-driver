@@ -1,28 +1,27 @@
 /dts-v1/;
 /plugin/;
 
-#include <dt-bindings/gpio/gpio.h>
+/ {                            /* <-- include line removed entirely */
+        compatible = "brcm,bcm2835";
 
-/ {
-    compatible = "brcm,bcm2835";      /* required by firmware */
+        fragment@0 {
+                target-path = "/";
 
-    fragment@0 {
-        target-path = "/";            /* apply to root node */
+                __overlay__ {
+                        sevenseg: sevenseg@0 {
+                                compatible = "akhmadkhonov,sevenseg";
 
-        __overlay__ {
-            sevenseg: sevenseg@0 {
-                /* controller   pin  flags */
-                seg-gpios = <
-                    &gpio  5 GPIO_ACTIVE_HIGH
-                    &gpio  6 GPIO_ACTIVE_HIGH
-                    &gpio  4 GPIO_ACTIVE_HIGH
-                    &gpio 17 GPIO_ACTIVE_HIGH
-                    &gpio 27 GPIO_ACTIVE_HIGH
-                    &gpio 22 GPIO_ACTIVE_HIGH
-                    &gpio 10 GPIO_ACTIVE_HIGH
-                    &gpio  9 GPIO_ACTIVE_HIGH
-                >;
-            };
+                                seg-gpios = <
+                                        &gpio  5 0
+                                        &gpio  6 0
+                                        &gpio  4 0
+                                        &gpio 17 0
+                                        &gpio 27 0
+                                        &gpio 22 0
+                                        &gpio 10 0
+                                        &gpio  9 0
+                                >;
+                        };
+                };
         };
-    };
 };

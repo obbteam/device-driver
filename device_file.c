@@ -5,6 +5,8 @@
 #include <linux/mutex.h>
 #include <linux/miscdevice.h>
 #include <linux/gpio/consumer.h>
+#include <linux/platform_device.h>
+#include <linux/mod_devicetable.h>
 
 /* ============ DRIVER INIT VARS ============*/
 
@@ -174,45 +176,52 @@ static struct file_operations simple_driver_fops = {
     .write = device_file_write,
 };
 
-/*============ DYNAMICALLY REGISTERING THE DEVICE ============ */
-static struct miscdevice simple_misc =
-    {
-        .minor = MISC_DYNAMIC_MINOR,
-        .name = device_name,
-        .fops = &simple_driver_fops,
+static struct miscdevice sevenseg_misc = {
+    .minor = MISC_DYNAMIC_MINOR,
+    .name = device_name,
+    .fops = &simple_driver_fops,
 };
 
-int register_device(void)
+/*============ PLATFORM DRIVER GLUE ============ */
+
+static int sevenseg_probe(struct platform_device *pdev)
 {
-    int result = 0;
-    printk(KERN_NOTICE "%s: Register_device() is called\n", device_name);
-    // result = register_chrdev(0, device_name, &simple_driver_fops);
-    result = misc_register(&simple_misc);
+    int ret;
 
-    if (result)
-    {
-        printk(KERN_WARNING "%s: Misc_register failed (%d)\n", device_name, result);
-        return result;
-    }
-
-    segs = devm_gpiod_get_array(simple_misc.this_device, "seg", GPIOD_OUT_LOW);
-
+    /* 1. Obtain the “seg” GPIO array defined in DT */
+    segs = devm_gpiod_get_array(&pdev->dev, "seg", GPIOD_OUT_LOW);
     if (IS_ERR(segs))
-    {
-        printk(KERN_ERR "%s: failed to get seg gpios: %d\n", device_name, segs->ndescs);
-        int ret = PTR_ERR(segs);
-        misc_deregister(&simple_misc);
+        return PTR_ERR(segs);
+
+    /* 2. Hook misc device to this parent so the DT link shows in sysfs */
+    sevenseg_misc.parent = &pdev->dev;
+
+    /* 3. Register /dev/akhmadkhonov-driver */
+    ret = misc_register(&sevenseg_misc);
+    if (ret)
         return ret;
-    }
 
-    printk(KERN_NOTICE "%s: Loaded, /dev/%s ready\n", device_name, device_name);
-
-    return 0;
+    dev_info(&pdev->dev,
+             "seven-segment ready as /dev/%s (segments=%d)\n",
+             sevenseg_misc.name, segs->ndescs);
+    return 0; /* probe success */
 }
 
-void unregister_device(void)
+static void sevenseg_remove(struct platform_device *pdev)
 {
-    printk(KERN_NOTICE "%s: Unregister_device() is called\n", device_name);
-    misc_deregister(&simple_misc);
-    printk(KERN_NOTICE "%s: Unloaded\n", device_name);
+    misc_deregister(&sevenseg_misc);
 }
+
+static const struct of_device_id sevenseg_of_match[] = {
+    {.compatible = "akhmadkhonov,sevenseg"},
+    {/* sentinel */}};
+MODULE_DEVICE_TABLE(of, sevenseg_of_match);
+
+struct platform_driver sevenseg_driver = {
+    .driver = {
+        .name = "akhmadkhonov-sevenseg",
+        .of_match_table = sevenseg_of_match,
+    },
+    .probe = sevenseg_probe,
+    .remove = sevenseg_remove,
+};
